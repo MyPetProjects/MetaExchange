@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace MetaExchange
@@ -29,7 +30,10 @@ namespace MetaExchange
 
         public decimal Amount { get; set; }
 
+        [JsonIgnore]
         public decimal AmountLeft { get; set; }
+
+        public decimal AmountExecuted { get; set; }
 
         public decimal Price { get; set; }
     }

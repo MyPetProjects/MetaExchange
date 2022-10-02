@@ -12,6 +12,8 @@ namespace MetaExchange
 
         private static List<Exchange> _exchanges = new();
 
+        private static List<Order> _resOrders = new();
+
         static void Main(string[] args)
         {
             if (!parseCmdLineArgs(args))
@@ -20,6 +22,16 @@ namespace MetaExchange
             }
 
             fillOrdersInfo();
+
+            process();
+
+            Console.WriteLine("Orders which should be executed:");
+
+            string resOrdersString = JsonSerializer.Serialize(_resOrders, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            Console.WriteLine(resOrdersString);
 
             Console.ReadKey();
         }
@@ -67,10 +79,64 @@ namespace MetaExchange
             clientBalancesDto.SetClientBalancesForAllExchanges(_exchanges);
         }
 
-        private static void Process()
+        private static void process()
         {
-            // _clientOrderType, _amount, _exchanges => resultOrders
-            // Console.WriteLine(resultOrders);
+            List<Order> orders = new();
+            // get asks\bids from all exchanges sorted from the most to least profitable
+            if (_clientOrderType == ClientOrderTypes.BUY_BTC)
+            {
+                _exchanges.ForEach(e => orders.AddRange(e.Asks));
+                orders = orders.OrderBy(a => a.Price).ToList();
+            }
+            else if (_clientOrderType == ClientOrderTypes.SELL_BTC)
+            {
+                _exchanges.ForEach(e => orders.AddRange(e.Bids));
+                orders = orders.OrderByDescending(b => b.Price).ToList();
+            }
+
+            if (_resOrders == null) _resOrders = new List<Order>();
+            decimal amountLeft = _amount;
+
+            foreach(var order in orders)
+            {
+                decimal execAmount = Math.Min(amountLeft, order.AmountLeft);
+                var balances = _exchanges.Find(e => e.Id == order.ExchangeId).ClientBalances;
+
+                // TODO: move this logic to exchanges\orders
+                if (_clientOrderType == ClientOrderTypes.BUY_BTC)
+                {
+                    if (execAmount * order.Price > balances[AssetTypes.EUR])
+                    {
+                        continue;
+                    }
+
+                    balances[AssetTypes.EUR] -= execAmount * order.Price;
+                    balances[AssetTypes.BTC] += execAmount;
+                }
+                else if (_clientOrderType == ClientOrderTypes.SELL_BTC)
+                {
+                    if (execAmount > balances[AssetTypes.BTC])
+                    {
+                        continue;
+                    }
+
+                    balances[AssetTypes.EUR] += execAmount * order.Price;
+                    balances[AssetTypes.BTC] -= execAmount;
+                }
+
+                amountLeft -= execAmount;
+                order.AmountLeft -= execAmount;
+                order.AmountExecuted += execAmount;
+                _resOrders.Add(order);
+
+                if (amountLeft == 0) break;
+            }
+
+            if (amountLeft > 0)
+            {
+                // TODO: iterate through _resOrders and roll them all back
+                throw new Exception("Was not able to execute your order (not enough orders on all exchanges)");
+            }
         }
     }
 }

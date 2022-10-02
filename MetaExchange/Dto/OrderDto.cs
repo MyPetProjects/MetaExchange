@@ -26,6 +26,7 @@ namespace MetaExchange.Dto
                 Kind = Order.Kind,
                 Amount = Order.Amount,
                 AmountLeft = Order.Amount,
+                AmountExecuted = 0,
                 Price = Order.Price
             };
         }
