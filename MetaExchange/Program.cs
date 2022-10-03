@@ -19,6 +19,8 @@ namespace MetaExchange
             if (!parseCmdLineArgs(args))
             {
                 showHelp();
+                Console.ReadKey();
+                return;
             }
 
             fillOrdersInfo();
@@ -51,7 +53,13 @@ namespace MetaExchange
             if (!decimal.TryParse(args[1], out _amount))
             {
                 return false;
-            }    
+            }
+
+            if (_amount <= 0)
+            {
+                Console.WriteLine("Order amount should be positive!");
+                return false;
+            }
 
             return true;
         }
@@ -86,12 +94,18 @@ namespace MetaExchange
             if (_clientOrderType == ClientOrderTypes.BUY_BTC)
             {
                 _exchanges.ForEach(e => orders.AddRange(e.Asks));
-                orders = orders.OrderBy(a => a.Price).ToList();
+                orders = orders
+                    .OrderBy(a => a.Price)
+                    .ThenByDescending(a => a.AmountLeft)
+                    .ToList();
             }
             else if (_clientOrderType == ClientOrderTypes.SELL_BTC)
             {
                 _exchanges.ForEach(e => orders.AddRange(e.Bids));
-                orders = orders.OrderByDescending(b => b.Price).ToList();
+                orders = orders
+                    .OrderByDescending(b => b.Price)
+                    .ThenByDescending (b => b.AmountLeft)
+                    .ToList();
             }
 
             if (_resOrders == null) _resOrders = new List<Order>();
@@ -100,33 +114,15 @@ namespace MetaExchange
             foreach(var order in orders)
             {
                 decimal execAmount = Math.Min(amountLeft, order.AmountLeft);
-                var balances = _exchanges.Find(e => e.Id == order.ExchangeId).ClientBalances;
+                var exchange = _exchanges.Find(e => e.Id == order.ExchangeId);
 
-                // TODO: move this logic to exchanges\orders
-                if (_clientOrderType == ClientOrderTypes.BUY_BTC)
+                if (!exchange.IsOrderExecutable(_clientOrderType, order, execAmount))
                 {
-                    if (execAmount * order.Price > balances[AssetTypes.EUR])
-                    {
-                        continue;
-                    }
-
-                    balances[AssetTypes.EUR] -= execAmount * order.Price;
-                    balances[AssetTypes.BTC] += execAmount;
-                }
-                else if (_clientOrderType == ClientOrderTypes.SELL_BTC)
-                {
-                    if (execAmount > balances[AssetTypes.BTC])
-                    {
-                        continue;
-                    }
-
-                    balances[AssetTypes.EUR] += execAmount * order.Price;
-                    balances[AssetTypes.BTC] -= execAmount;
+                    continue;
                 }
 
+                exchange.ExecuteOrder(order, _clientOrderType, execAmount);
                 amountLeft -= execAmount;
-                order.AmountLeft -= execAmount;
-                order.AmountExecuted += execAmount;
                 _resOrders.Add(order);
 
                 if (amountLeft == 0) break;

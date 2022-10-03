@@ -36,5 +36,21 @@ namespace MetaExchange
         public decimal AmountExecuted { get; set; }
 
         public decimal Price { get; set; }
+
+        /// <summary>
+        /// execute order
+        /// </summary>
+        /// <param name="amount">amount to execute (order can be executed partially)</param>
+        /// <exception cref="Exception"></exception>
+        public void Execute(decimal amount)
+        {
+            if (amount > AmountLeft)
+            {
+                throw new Exception($"Not enough money left at order {Id}");
+            }
+
+            AmountLeft -= amount;
+            AmountExecuted += amount;
+        }
     }
 }

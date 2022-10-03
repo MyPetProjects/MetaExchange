@@ -40,5 +40,52 @@ namespace MetaExchange
                 ClientBalances.Add(balance.AssetType, balance.Balance);
             }
         }
+
+        /// <summary>
+        /// check if an order can be executed
+        /// </summary>
+        /// <param name="clientOrderType">what a client wants to do</param>
+        /// <param name="order">order which we are checking</param>
+        /// <param name="execAmount">amount which we want to execute (orders can be executed partially)</param>
+        /// <returns></returns>
+        public bool IsOrderExecutable(ClientOrderTypes clientOrderType, Order order, decimal execAmount)
+        {
+            if (execAmount > order.AmountLeft) return false;
+
+            if (clientOrderType == ClientOrderTypes.BUY_BTC)
+            {
+                if (order.Type != OrderTypes.SELL) return false;
+                if (execAmount * order.Price > ClientBalances[AssetTypes.EUR]) return false;
+            }
+
+            if (clientOrderType == ClientOrderTypes.SELL_BTC)
+            {
+                if (order.Type != OrderTypes.BUY) return false;
+                if (execAmount > ClientBalances[AssetTypes.BTC]) return false;
+            }
+
+            return true;
+        }
+
+        private void updateClientBalance(
+            ClientOrderTypes clientOrderType, decimal execAmount, decimal orderPrice)
+        {
+            if (clientOrderType == ClientOrderTypes.BUY_BTC)
+            {
+                ClientBalances[AssetTypes.EUR] -= execAmount * orderPrice;
+                ClientBalances[AssetTypes.BTC] += execAmount;
+            }
+            else if (clientOrderType == ClientOrderTypes.SELL_BTC)
+            {
+                ClientBalances[AssetTypes.EUR] += execAmount * orderPrice;
+                ClientBalances[AssetTypes.BTC] -= execAmount;
+            }
+        }
+
+        public void ExecuteOrder(Order order, ClientOrderTypes clientOrderType, decimal amount)
+        {
+            order.Execute(amount);
+            updateClientBalance(clientOrderType, amount, order.Price);
+        }
     }
 }
