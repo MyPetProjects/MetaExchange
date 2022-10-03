@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MetaExchange;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MetaExchangeAPI.Controllers
@@ -17,13 +18,17 @@ namespace MetaExchangeAPI.Controllers
         [HttpPost("buy_btc")]
         public IActionResult BuyBtc(decimal amount)
         {
-            return Problem("Endpoint not impelemnted");
+            List<Order> resOrders = Globals.GlobalExchange.Process(ClientOrderTypes.BUY_BTC, amount);
+
+            return Ok(resOrders);
         }
 
         [HttpPost("sell_btc")]
         public IActionResult SellBtc(decimal amount)
         {
-            return Problem("Endpoint not impelemnted");
+            List<Order> resOrders = Globals.GlobalExchange.Process(ClientOrderTypes.SELL_BTC, amount);
+
+            return Ok(resOrders);
         }
     }
 }

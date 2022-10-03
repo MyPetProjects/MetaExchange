@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace MetaExchange
 {
-    internal class FetchJsonDataUtil
+    public class FetchJsonDataUtil
     {
         private static T readFromFile<T>(string filePath)
         {

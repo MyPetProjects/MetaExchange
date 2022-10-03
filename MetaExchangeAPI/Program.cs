@@ -1,3 +1,5 @@
+using MetaExchange;
+
 namespace MetaExchangeAPI
 {
     public class Program
@@ -5,6 +7,16 @@ namespace MetaExchangeAPI
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            string ordersFile = builder.Configuration["OrdersFile"];
+            string ordersFilePath = Path.Combine(builder.Environment.ContentRootPath, ordersFile);
+
+            string clientBalancesFile = builder.Configuration["ClientBalancesFile"];
+            string clientBalancesFilePath = Path.Combine(
+                builder.Environment.ContentRootPath, clientBalancesFile);
+
+            Globals.GlobalExchange = FetchJsonDataUtil
+                .CreateGlobalExchange(ordersFilePath, clientBalancesFilePath);
 
             // Add services to the container.
 
