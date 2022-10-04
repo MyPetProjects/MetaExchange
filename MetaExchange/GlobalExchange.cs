@@ -60,6 +60,11 @@ namespace MetaExchange
             return globalExchange;
         }
 
+        private void renderOrders()
+        {
+            _exchanges.ForEach(e => e.RenderOrders());
+        }
+
         /// <summary>
         /// process client's order
         /// </summary>
@@ -69,6 +74,8 @@ namespace MetaExchange
         /// <exception cref="Exception"></exception>
         public List<Order> Process(ClientOrderTypes clientOrderType, decimal amount)
         {
+            renderOrders();
+
             List<Order> resOrders = new();
 
             List<Order> orders = new();
@@ -78,6 +85,7 @@ namespace MetaExchange
             {
                 _exchanges.ForEach(e => orders.AddRange(e.Asks));
                 orders = orders
+                    .Where(a => a.AmountLeft > 0)
                     .OrderBy(a => a.Price)
                     .ThenByDescending(a => a.AmountLeft)
                     .ToList();
@@ -86,6 +94,7 @@ namespace MetaExchange
             {
                 _exchanges.ForEach(e => orders.AddRange(e.Bids));
                 orders = orders
+                    .Where(b => b.AmountLeft > 0)
                     .OrderByDescending(b => b.Price)
                     .ThenByDescending(b => b.AmountLeft)
                     .ToList();

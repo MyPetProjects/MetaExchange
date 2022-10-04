@@ -29,6 +29,8 @@ namespace MetaExchange
         /// </summary>
         public List<Order> Asks { get; set; }
 
+        private List<Order> _deletedOrders = new();
+
         public Dictionary<AssetTypes, decimal> ClientBalances { get; set; }
 
         private Exchange() { }
@@ -105,6 +107,29 @@ namespace MetaExchange
         {
             order.Execute(amount);
             updateClientBalance(clientOrderType, amount, order.Price);
+        }
+
+        public void RenderOrders()
+        {
+            // remove fully executed orders
+            _deletedOrders.AddRange(
+                Bids.Where(b => b.AmountLeft == 0));
+            Bids.RemoveAll(b => b.AmountLeft == 0);
+
+            _deletedOrders.AddRange(
+                Asks.Where(a => a.AmountLeft == 0));
+            Asks.RemoveAll(a => a.AmountLeft == 0);
+
+            // update amount fields for partially executed orders
+            Bids.ForEach(b => {
+                b.Amount = b.AmountLeft;
+                b.AmountExecuted = 0;
+            });
+
+            Asks.ForEach(a => {
+                a.Amount = a.AmountLeft;
+                a.AmountExecuted = 0;
+            });
         }
     }
 }

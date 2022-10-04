@@ -24,7 +24,6 @@ namespace MetaExchange
             if (!parseCmdLineArgs(args))
             {
                 showHelp();
-                Console.ReadKey();
                 return;
             }
 
@@ -46,8 +45,6 @@ namespace MetaExchange
                 WriteIndented = true
             });
             Console.WriteLine(resOrdersString);
-
-            Console.ReadKey();
         }
 
         private static bool parseCmdLineArgs(string[] args)
