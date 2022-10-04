@@ -5,8 +5,8 @@ namespace MetaExchangeAPI
     /// <summary>
     /// Global variables which should be accessible during all application lifetime
     /// </summary>
-    public static class Globals
+    public class Globals
     {
-        public static GlobalExchange GlobalExchange { get; set; }
+        public GlobalExchange GlobalExchange { get; set; }
     }
 }

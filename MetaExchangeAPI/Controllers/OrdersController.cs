@@ -10,15 +10,18 @@ namespace MetaExchangeAPI.Controllers
     {
         private readonly ILogger<OrdersController> _logger;
 
-        public OrdersController(ILogger<OrdersController> logger)
+        private readonly Globals _globals;
+
+        public OrdersController(ILogger<OrdersController> logger, Globals globals)
         {
             _logger = logger;
+            _globals = globals;
         }
 
         [HttpPost("buy_btc")]
         public IActionResult BuyBtc(decimal amount)
         {
-            List<Order> resOrders = Globals.GlobalExchange.Process(ClientOrderTypes.BUY_BTC, amount);
+            List<Order> resOrders = _globals.GlobalExchange.Process(ClientOrderTypes.BUY_BTC, amount);
 
             return Ok(resOrders);
         }
@@ -26,7 +29,7 @@ namespace MetaExchangeAPI.Controllers
         [HttpPost("sell_btc")]
         public IActionResult SellBtc(decimal amount)
         {
-            List<Order> resOrders = Globals.GlobalExchange.Process(ClientOrderTypes.SELL_BTC, amount);
+            List<Order> resOrders = _globals.GlobalExchange.Process(ClientOrderTypes.SELL_BTC, amount);
 
             return Ok(resOrders);
         }

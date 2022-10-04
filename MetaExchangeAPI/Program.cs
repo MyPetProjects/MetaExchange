@@ -1,4 +1,5 @@
 using MetaExchange;
+using Microsoft.Extensions.Options;
 
 namespace MetaExchangeAPI
 {
@@ -8,16 +9,23 @@ namespace MetaExchangeAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            string ordersFile = builder.Configuration["OrdersFile"];
-            string ordersFilePath = Path.Combine(builder.Environment.ContentRootPath, ordersFile);
-            var exchangesData = FetchJsonDataUtil.FetchExchangesFromFile(ordersFile);
+            Action<Globals> globalsAction = (globals =>
+            {
+                string ordersFile = builder.Configuration["OrdersFile"];
+                string ordersFilePath = Path.Combine(builder.Environment.ContentRootPath, ordersFile);
+                var exchangesData = FetchJsonDataUtil.FetchExchangesFromFile(ordersFile);
 
-            string clientBalancesFile = builder.Configuration["ClientBalancesFile"];
-            string clientBalancesFilePath = Path.Combine(
-                builder.Environment.ContentRootPath, clientBalancesFile);
-            var clientBalancesData = FetchJsonDataUtil.FetchClientBalancesFromFile(clientBalancesFile);
+                string clientBalancesFile = builder.Configuration["ClientBalancesFile"];
+                string clientBalancesFilePath = Path.Combine(
+                    builder.Environment.ContentRootPath, clientBalancesFile);
+                var clientBalancesData = FetchJsonDataUtil.FetchClientBalancesFromFile(clientBalancesFile);
 
-            Globals.GlobalExchange = GlobalExchange.Create(exchangesData, clientBalancesData);
+                globals.GlobalExchange = GlobalExchange.Create(exchangesData, clientBalancesData);
+            });
+            builder.Services.Configure<Globals>(globalsAction);
+            builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<Globals>>().Value);
+
+            // Globals.GlobalExchange = GlobalExchange.Create(exchangesData, clientBalancesData);
 
             // Add services to the container.
 
