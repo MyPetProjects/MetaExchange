@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MetaExchange.Dto;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -36,6 +37,30 @@ namespace MetaExchange
         public decimal AmountExecuted { get; set; }
 
         public decimal Price { get; set; }
+
+        /// <summary>
+        /// create order using raw order data and assign it to an exchange
+        /// </summary>
+        /// <param name="orderDto">order data</param>
+        /// <param name="exchangeId">exchange ID</param>
+        /// <returns></returns>
+        public static Order Create(OrderDto orderDto, string exchangeId = null)
+        {
+            Order order = orderDto.Order;
+
+            return new Order
+            {
+                Id = order.Id ?? Guid.NewGuid(),
+                ExchangeId = exchangeId,
+                Time = order.Time,
+                Type = order.Type,
+                Kind = order.Kind,
+                Amount = order.Amount,
+                AmountLeft = order.Amount,
+                AmountExecuted = 0,
+                Price = order.Price
+            };
+        }
 
         /// <summary>
         /// execute order

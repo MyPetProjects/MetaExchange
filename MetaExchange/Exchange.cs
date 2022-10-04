@@ -31,6 +31,25 @@ namespace MetaExchange
 
         public Dictionary<AssetTypes, decimal> ClientBalances { get; set; }
 
+        private Exchange() { }
+
+        public static Exchange Create(ExchangeDto exchangeDto)
+        {
+            var bids = new List<Order>();
+            exchangeDto.Bids.ForEach(b => bids.Add(Order.Create(b, exchangeDto.Id)));
+
+            var asks = new List<Order>();
+            exchangeDto.Asks.ForEach(a => asks.Add(Order.Create(a, exchangeDto.Id)));
+
+            return new Exchange
+            {
+                Id = exchangeDto.Id,
+                AcqTime = exchangeDto.AcqTime,
+                Bids = bids,
+                Asks = asks
+            };
+        }
+
         public void SetClientBalances(List<ClientBalanceDto> balances)
         {
             ClientBalances = new Dictionary<AssetTypes, decimal>();

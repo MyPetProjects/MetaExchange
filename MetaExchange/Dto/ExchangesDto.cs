@@ -12,19 +12,6 @@ namespace MetaExchange.Dto
     public class ExchangesDto
     {
         public List<ExchangeDto> Exchanges { get; set; }
-
-        /// <summary>
-        /// convert data fetched from json file to a business object
-        /// </summary>
-        /// <returns></returns>
-        public List<Exchange> ConvertToExchanges()
-        {
-            var exchanges = new List<Exchange>();
-
-            Exchanges.ForEach(e => exchanges.Add(e.ConvertToExchange()));
-
-            return exchanges;
-        }
     }
 
 }

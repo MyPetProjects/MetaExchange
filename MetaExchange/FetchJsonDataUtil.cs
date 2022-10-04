@@ -9,6 +9,9 @@ using System.Threading.Tasks;
 
 namespace MetaExchange
 {
+    /// <summary>
+    /// Util class for fetching data from json format
+    /// </summary>
     public class FetchJsonDataUtil
     {
         private static T readFromFile<T>(string filePath)
@@ -20,35 +23,24 @@ namespace MetaExchange
             return JsonSerializer.Deserialize<T>(text, options);
         }
 
-        private static List<Exchange> fetchExchangesFromFile(string ordersFileName)
+        /// <summary>
+        /// fetch exchanges data from a file
+        /// </summary>
+        /// <param name="ordersFileName">file path</param>
+        /// <returns>dto object with fetched data</returns>
+        public static ExchangesDto FetchExchangesFromFile(string ordersFileName)
         {
-            ExchangesDto exchangesDto = readFromFile<ExchangesDto>(ordersFileName);
-            return exchangesDto.ConvertToExchanges();
-        }
-
-        private static ClientBalancesDto fetchClientBalancesFromFile(string clientBalancesFileName)
-        {
-            return readFromFile<ClientBalancesDto>(clientBalancesFileName);
+            return readFromFile<ExchangesDto>(ordersFileName);
         }
 
         /// <summary>
-        /// fetch data from files and create a business object with all order books, client balances etc
+        /// fetch client balances from a file
         /// </summary>
-        /// <param name="ordersFileName"></param>
-        /// <param name="clientBalancesFileName"></param>
-        /// <returns></returns>
-        public static GlobalExchange CreateGlobalExchange(
-            string ordersFileName, string clientBalancesFileName)
+        /// <param name="clientBalancesFileName">file path</param>
+        /// <returns>dto object with fetched </returns>
+        public static ClientBalancesDto FetchClientBalancesFromFile(string clientBalancesFileName)
         {
-            List<Exchange> exchanges = fetchExchangesFromFile(ordersFileName);
-            var globalExchange = new GlobalExchange(exchanges);
-
-            ClientBalancesDto clientBalancesDto =
-                fetchClientBalancesFromFile(clientBalancesFileName);
-
-            globalExchange.SetClientBalances(clientBalancesDto);
-
-            return globalExchange;
+            return readFromFile<ClientBalancesDto>(clientBalancesFileName);
         }
     }
 }

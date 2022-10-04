@@ -10,13 +10,14 @@ namespace MetaExchangeAPI
 
             string ordersFile = builder.Configuration["OrdersFile"];
             string ordersFilePath = Path.Combine(builder.Environment.ContentRootPath, ordersFile);
+            var exchangesData = FetchJsonDataUtil.FetchExchangesFromFile(ordersFile);
 
             string clientBalancesFile = builder.Configuration["ClientBalancesFile"];
             string clientBalancesFilePath = Path.Combine(
                 builder.Environment.ContentRootPath, clientBalancesFile);
+            var clientBalancesData = FetchJsonDataUtil.FetchClientBalancesFromFile(clientBalancesFile);
 
-            Globals.GlobalExchange = FetchJsonDataUtil
-                .CreateGlobalExchange(ordersFilePath, clientBalancesFilePath);
+            Globals.GlobalExchange = GlobalExchange.Create(exchangesData, clientBalancesData);
 
             // Add services to the container.
 

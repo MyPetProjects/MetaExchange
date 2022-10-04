@@ -14,18 +14,50 @@ namespace MetaExchange
     {
         private List<Exchange> _exchanges = new();
 
-        public GlobalExchange(List<Exchange> exchanges)
+        private GlobalExchange() { }
+
+        private void setExchangesFromDto(ExchangesDto exchangesDto)
         {
-            _exchanges = new List<Exchange>(exchanges);
+            _exchanges = new List<Exchange>();
+            exchangesDto.Exchanges.ForEach(e => _exchanges.Add(Exchange.Create(e)));
+        }
+
+        private void setClientBalancesForAllExchanges(ClientBalancesDto clientBalanceDto)
+        {
+            foreach (var clientBalance in clientBalanceDto.ClientBalances)
+            {
+                var exchangesFound = _exchanges.FindAll(e => e.Id == clientBalance.ExchangeId);
+
+                if (exchangesFound.Count > 1)
+                {
+                    throw new Exception($"Exchange ID is not unique: {clientBalance.ExchangeId}");
+                }
+
+                if (exchangesFound.Count == 0)
+                {
+                    throw new Exception($"Exchange not found: {clientBalance.ExchangeId}");
+                }
+
+                var exchange = exchangesFound.First();
+
+                exchange.SetClientBalances(clientBalance.Balances);
+            }
         }
 
         /// <summary>
-        /// fill client balances for all exchanges
+        /// create global exchange using exchanges\client balances data
         /// </summary>
+        /// <param name="exchangesDto">exchanges data</param>
         /// <param name="clientBalancesDto">client balances data</param>
-        public void SetClientBalances(ClientBalancesDto clientBalancesDto)
+        /// <returns></returns>
+        public static GlobalExchange Create(
+            ExchangesDto exchangesDto, ClientBalancesDto clientBalancesDto)
         {
-            clientBalancesDto.SetClientBalancesForAllExchanges(_exchanges);
+            GlobalExchange globalExchange = new();
+            globalExchange.setExchangesFromDto(exchangesDto);
+            globalExchange.setClientBalancesForAllExchanges(clientBalancesDto);
+
+            return globalExchange;
         }
 
         /// <summary>
