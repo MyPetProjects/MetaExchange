@@ -9,23 +9,18 @@ namespace MetaExchangeAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            Action<Globals> globalsAction = (globals =>
-            {
-                string ordersFile = builder.Configuration["OrdersFile"];
-                string ordersFilePath = Path.Combine(builder.Environment.ContentRootPath, ordersFile);
-                var exchangesData = FetchJsonDataUtil.FetchExchangesFromFile(ordersFile);
+            string ordersFile = builder.Configuration["OrdersFile"];
+            string ordersFilePath = Path.Combine(builder.Environment.ContentRootPath, ordersFile);
+            var exchangesData = FetchJsonDataUtil.FetchExchangesFromFile(ordersFile);
 
-                string clientBalancesFile = builder.Configuration["ClientBalancesFile"];
-                string clientBalancesFilePath = Path.Combine(
-                    builder.Environment.ContentRootPath, clientBalancesFile);
-                var clientBalancesData = FetchJsonDataUtil.FetchClientBalancesFromFile(clientBalancesFile);
+            string clientBalancesFile = builder.Configuration["ClientBalancesFile"];
+            string clientBalancesFilePath = Path.Combine(
+                builder.Environment.ContentRootPath, clientBalancesFile);
+            var clientBalancesData = FetchJsonDataUtil.FetchClientBalancesFromFile(clientBalancesFile);
 
-                globals.GlobalExchange = GlobalExchange.Create(exchangesData, clientBalancesData);
-            });
-            builder.Services.Configure<Globals>(globalsAction);
-            builder.Services.AddSingleton(resolver => resolver.GetRequiredService<IOptions<Globals>>().Value);
+            var globalExchange = GlobalExchange.Create(exchangesData, clientBalancesData);
 
-            // Globals.GlobalExchange = GlobalExchange.Create(exchangesData, clientBalancesData);
+            builder.Services.AddSingleton<GlobalExchange>(globalExchange);
 
             // Add services to the container.
 
