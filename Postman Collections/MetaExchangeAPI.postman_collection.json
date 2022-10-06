@@ -1,0 +1,80 @@
+{
+	"info": {
+		"_postman_id": "0b90c5ce-ae24-4dce-a791-1a99db6fa525",
+		"name": "MetaExchangeAPI",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19851382"
+	},
+	"item": [
+		{
+			"name": "Buy BTC",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_url}}/api/orders/buy_btc?amount=1.5",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"api",
+						"orders",
+						"buy_btc"
+					],
+					"query": [
+						{
+							"key": "amount",
+							"value": "1.5",
+							"description": "buy/sell order amount"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Sell BTC",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{api_url}}/api/orders/sell_btc?amount=0.21",
+					"host": [
+						"{{api_url}}"
+					],
+					"path": [
+						"api",
+						"orders",
+						"sell_btc"
+					],
+					"query": [
+						{
+							"key": "amount",
+							"value": "0.21",
+							"description": "buy/sell order amount"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
