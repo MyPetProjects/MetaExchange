@@ -7,10 +7,6 @@ namespace MetaExchange
 {
     internal class Program
     {
-        private const string DEFAULT_ORDERS_FILE = "Data\\order_books_data.json";
-
-        private const string DEFAULT_CLIENT_BALANCES_FILE = "Data\\client_balances_data.json";
-
         private static ClientOrderTypes _clientOrderType;
 
         private static decimal _amount;
@@ -27,14 +23,11 @@ namespace MetaExchange
                 return;
             }
 
-            string ordersFile = config["OrdersFile"] ?? DEFAULT_ORDERS_FILE;
-            var exchangesData = FetchJsonDataUtil.FetchExchangesFromFile(ordersFile);
-
-            string clientBalancesFile = config["ClientBalancesFile"] ?? DEFAULT_CLIENT_BALANCES_FILE;
-            var clientBalancesData = FetchJsonDataUtil.FetchClientBalancesFromFile(clientBalancesFile);
+            string ordersFile = config["OrdersFile"];
+            string clientBalancesFile = config["ClientBalancesFile"];
 
             GlobalExchange globalExchange =
-                GlobalExchange.Create(exchangesData, clientBalancesData);
+                new ExchangeDataSource(ordersFile, clientBalancesFile).GetGlobalExchange();
 
             Result<List<Order>> result = globalExchange.Process(_clientOrderType, _amount);
 

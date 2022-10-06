@@ -60,11 +60,6 @@ namespace MetaExchange
             return globalExchange;
         }
 
-        private void renderOrders()
-        {
-            _exchanges.ForEach(e => e.RenderOrders());
-        }
-
         /// <summary>
         /// process client's order
         /// </summary>
@@ -74,8 +69,6 @@ namespace MetaExchange
         /// <exception cref="Exception"></exception>
         public Result<List<Order>> Process(ClientOrderTypes clientOrderType, decimal amount)
         {
-            renderOrders();
-
             List<Order> resOrders = new();
 
             List<Order> orders = new();

@@ -9,18 +9,18 @@ namespace MetaExchangeAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            string ordersFile = builder.Configuration["OrdersFile"];
-            string ordersFilePath = Path.Combine(builder.Environment.ContentRootPath, ordersFile);
-            var exchangesData = FetchJsonDataUtil.FetchExchangesFromFile(ordersFile);
+            builder.Services.AddScoped<GlobalExchange>(provider =>
+            {
+                string ordersFile = builder.Configuration["OrdersFile"];
+                string ordersFilePath = Path.Combine(builder.Environment.ContentRootPath, ordersFile);
 
-            string clientBalancesFile = builder.Configuration["ClientBalancesFile"];
-            string clientBalancesFilePath = Path.Combine(
-                builder.Environment.ContentRootPath, clientBalancesFile);
-            var clientBalancesData = FetchJsonDataUtil.FetchClientBalancesFromFile(clientBalancesFile);
+                string clientBalancesFile = builder.Configuration["ClientBalancesFile"];
+                string clientBalancesFilePath = Path.Combine(
+                    builder.Environment.ContentRootPath, clientBalancesFile);
 
-            var globalExchange = GlobalExchange.Create(exchangesData, clientBalancesData);
-
-            builder.Services.AddSingleton<GlobalExchange>(globalExchange);
+                return new ExchangeDataSource(
+                    ordersFilePath, clientBalancesFilePath).GetGlobalExchange();
+            });
 
             // Add services to the container.
 
