@@ -1,5 +1,6 @@
 using MetaExchange;
 using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 
 namespace MetaExchangeAPI
 {
@@ -27,7 +28,11 @@ namespace MetaExchangeAPI
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo() { Title = "Meta Exchange", Version = "v1" });
+                c.IncludeXmlComments(Path.Combine(System.AppContext.BaseDirectory, "MetaExchangeAPI.xml"));
+            });
 
             var app = builder.Build();
 

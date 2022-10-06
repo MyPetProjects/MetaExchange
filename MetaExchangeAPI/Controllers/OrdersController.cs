@@ -18,6 +18,13 @@ namespace MetaExchangeAPI.Controllers
             _globalExchange = globalExchange;
         }
 
+        /// <summary>
+        /// buy BTC
+        /// </summary>
+        /// <param name="amount">BTC amount</param>
+        /// <returns>list of ask orders which should be executed</returns>
+        /// <response code="200">Request successful</response>
+        /// <response code="400">Order cannot be executed</response>
         [HttpPost("buy_btc")]
         public IActionResult BuyBtc(decimal amount)
         {
@@ -33,6 +40,13 @@ namespace MetaExchangeAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// sell BTC
+        /// </summary>
+        /// <param name="amount">BTC amount</param>
+        /// <returns>list of ask orders which should be executed</returns>
+        /// <response code="200">Request successful</response>
+        /// <response code="400">Order cannot be executed</response>
         [HttpPost("sell_btc")]
         public IActionResult SellBtc(decimal amount)
         {
