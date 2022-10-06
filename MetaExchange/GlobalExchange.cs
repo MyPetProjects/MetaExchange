@@ -72,7 +72,7 @@ namespace MetaExchange
         /// <param name="amount">order amount</param>
         /// <returns>list of orders which need to be executed to fulfill client's request</returns>
         /// <exception cref="Exception"></exception>
-        public List<Order> Process(ClientOrderTypes clientOrderType, decimal amount)
+        public Result<List<Order>> Process(ClientOrderTypes clientOrderType, decimal amount)
         {
             renderOrders();
 
@@ -107,7 +107,7 @@ namespace MetaExchange
                 decimal execAmount = Math.Min(amountLeft, order.AmountLeft);
                 var exchange = _exchanges.Find(e => e.Id == order.ExchangeId);
 
-                if (!exchange.IsOrderExecutable(clientOrderType, order, execAmount))
+                if (!exchange.IsOrderExecutable(clientOrderType, order, execAmount).Success)
                 {
                     continue;
                 }
@@ -122,10 +122,11 @@ namespace MetaExchange
             if (amountLeft > 0)
             {
                 // TODO: iterate through _resOrders and roll them all back
-                throw new Exception("Was not able to execute your order (not enough orders on all exchanges)");
+                return Result<List<Order>>.Fail(
+                    "Was not able to execute your order (not enough orders on all exchanges)");
             }
 
-            return resOrders;
+            return Result<List<Order>>.Ok(resOrders);
         }
     }
 }

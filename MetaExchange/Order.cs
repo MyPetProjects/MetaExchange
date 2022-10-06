@@ -63,19 +63,43 @@ namespace MetaExchange
         }
 
         /// <summary>
+        /// check if this order could be executed
+        /// </summary>
+        /// <param name="clientOrderType">what client wants to do</param>
+        /// <param name="execAmount">amount of BTC a client wants to buy\sell</param>
+        /// <returns></returns>
+        public Result<Order> IsExecutable(ClientOrderTypes clientOrderType, decimal execAmount)
+        {
+            if (execAmount > AmountLeft)
+            {
+                return Result<Order>.Fail("Exec amount too big");
+            }
+
+            if ((clientOrderType == ClientOrderTypes.BUY_BTC && Type != OrderTypes.SELL) ||
+                (clientOrderType == ClientOrderTypes.SELL_BTC && Type != OrderTypes.BUY))
+            {
+                return Result<Order>.Fail("Wrong order type");
+            }
+
+            return Result<Order>.Ok();
+        }
+
+        /// <summary>
         /// execute order
         /// </summary>
         /// <param name="amount">amount to execute (order can be executed partially)</param>
         /// <exception cref="Exception"></exception>
-        public void Execute(decimal amount)
+        public Result<Order> Execute(decimal amount)
         {
             if (amount > AmountLeft)
             {
-                throw new Exception($"Not enough money left at order {Id}");
+                return Result<Order>.Fail($"Not enough money left at order {Id}");
             }
 
             AmountLeft -= amount;
             AmountExecuted += amount;
+
+            return Result<Order>.Ok();
         }
     }
 }

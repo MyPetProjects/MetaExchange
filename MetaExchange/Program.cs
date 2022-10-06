@@ -36,7 +36,16 @@ namespace MetaExchange
             GlobalExchange globalExchange =
                 GlobalExchange.Create(exchangesData, clientBalancesData);
 
-            List<Order> resOrders = globalExchange.Process(_clientOrderType, _amount);
+            Result<List<Order>> result = globalExchange.Process(_clientOrderType, _amount);
+
+            if (!result.Success)
+            {
+                Console.WriteLine("Client order could not be executed");
+                Console.WriteLine(result.Message);
+                return;
+            }
+
+            List<Order> resOrders = result.Data;
 
             Console.WriteLine("Orders which should be executed:");
 

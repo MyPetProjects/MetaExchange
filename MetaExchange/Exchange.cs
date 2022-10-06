@@ -62,6 +62,22 @@ namespace MetaExchange
             }
         }
 
+        private bool clientHasEnoughFunds(
+            ClientOrderTypes clientOrderType, decimal execAmount, decimal orderPrice)
+        {
+            if (clientOrderType == ClientOrderTypes.BUY_BTC)
+            {
+                if (execAmount * orderPrice > ClientBalances[AssetTypes.EUR]) return false;
+            }
+
+            if (clientOrderType == ClientOrderTypes.SELL_BTC)
+            {
+                if (execAmount > ClientBalances[AssetTypes.BTC]) return false;
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// check if an order can be executed
         /// </summary>
@@ -69,23 +85,21 @@ namespace MetaExchange
         /// <param name="order">order which we are checking</param>
         /// <param name="execAmount">amount which we want to execute (orders can be executed partially)</param>
         /// <returns></returns>
-        public bool IsOrderExecutable(ClientOrderTypes clientOrderType, Order order, decimal execAmount)
+        public Result<Exchange> IsOrderExecutable(ClientOrderTypes clientOrderType, Order order, decimal execAmount)
         {
-            if (execAmount > order.AmountLeft) return false;
+            var result = order.IsExecutable(clientOrderType, execAmount);
 
-            if (clientOrderType == ClientOrderTypes.BUY_BTC)
+            if (!result.Success)
             {
-                if (order.Type != OrderTypes.SELL) return false;
-                if (execAmount * order.Price > ClientBalances[AssetTypes.EUR]) return false;
+                return Result<Exchange>.Fail(result.Message);
             }
 
-            if (clientOrderType == ClientOrderTypes.SELL_BTC)
+            if (!clientHasEnoughFunds(clientOrderType, execAmount, order.Price))
             {
-                if (order.Type != OrderTypes.BUY) return false;
-                if (execAmount > ClientBalances[AssetTypes.BTC]) return false;
+                return Result<Exchange>.Fail("Client does not have enough funds");
             }
 
-            return true;
+            return Result<Exchange>.Ok();
         }
 
         private void updateClientBalance(
@@ -103,10 +117,17 @@ namespace MetaExchange
             }
         }
 
-        public void ExecuteOrder(Order order, ClientOrderTypes clientOrderType, decimal amount)
+        public Result<Exchange> ExecuteOrder(Order order, ClientOrderTypes clientOrderType, decimal amount)
         {
-            order.Execute(amount);
+            Result<Order> orderExecResult = order.Execute(amount);
+            if (!orderExecResult.Success)
+            {
+                return Result<Exchange>.Fail(orderExecResult.Message);
+            }
+
             updateClientBalance(clientOrderType, amount, order.Price);
+
+            return Result<Exchange>.Ok();
         }
 
         public void RenderOrders()

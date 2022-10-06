@@ -21,17 +21,31 @@ namespace MetaExchangeAPI.Controllers
         [HttpPost("buy_btc")]
         public IActionResult BuyBtc(decimal amount)
         {
-            List<Order> resOrders = _globalExchange.Process(ClientOrderTypes.BUY_BTC, amount);
+            Result<List<Order>> result= _globalExchange.Process(ClientOrderTypes.BUY_BTC, amount);
 
-            return Ok(resOrders);
+            if (result.Success)
+            {
+                return Ok(result.Data);
+            }
+            else
+            {
+                return BadRequest(result.Message);
+            }
         }
 
         [HttpPost("sell_btc")]
         public IActionResult SellBtc(decimal amount)
         {
-            List<Order> resOrders = _globalExchange.Process(ClientOrderTypes.SELL_BTC, amount);
+            Result<List<Order>> result = _globalExchange.Process(ClientOrderTypes.SELL_BTC, amount);
 
-            return Ok(resOrders);
+            if (result.Success)
+            {
+                return Ok(result.Data);
+            }
+            else
+            {
+                return BadRequest(result.Message);
+            }
         }
     }
 }
