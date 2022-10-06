@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace MetaExchange
 {
     /// <summary>
-    /// 
+    /// Info about exchange
     /// </summary>
     public class Exchange
     {

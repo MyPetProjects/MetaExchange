@@ -8,8 +8,14 @@ using System.Threading.Tasks;
 
 namespace MetaExchange
 {
+    /// <summary>
+    /// Order info
+    /// </summary>
     public class Order
     {
+        /// <summary>
+        /// order ID
+        /// </summary>
         public Guid? Id { get; set; }
 
         /// <summary>
